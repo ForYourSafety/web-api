@@ -4,7 +4,7 @@ source "https://rubygems.org"
 
 # Web API
 gem 'roda', '~>3.6'
-gem 'puma', '~>3.11'
+gem 'puma', '>= 6.4.3'
 gem 'json'
 
 # Testing
