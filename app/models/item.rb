@@ -2,6 +2,7 @@
 
 require 'json'
 require 'securerandom'
+require 'fileutils'
 
 module LostNFound
   module ItemCategory
@@ -15,7 +16,7 @@ module LostNFound
 
     # Create a new lost or found item instance
     def initialize(new_item)
-      @uuid        = new_item['id'] || new_id
+      @uuid        = new_item['uuid'] || new_id
       @category    = new_item['category']
       @item_name   = new_item['item_name']
       @description = new_item['description'] || ''
@@ -39,7 +40,7 @@ module LostNFound
 
     # File store must be setup once when application runs
     def self.setup
-      Dir.mkdir(STORE_DIR) unless Dir.exist? STORE_DIR
+      FileUtils.mkdir_p(STORE_DIR) unless Dir.exist? STORE_DIR
     end
 
     # Stores items in the file store
