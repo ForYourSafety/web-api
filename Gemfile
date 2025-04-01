@@ -11,6 +11,7 @@ gem 'json'
 gem 'minitest'
 gem 'minitest-rg'
 gem 'rack-test'
+gem 'bundler-audit'
 
 # Debugging
 gem 'pry'
