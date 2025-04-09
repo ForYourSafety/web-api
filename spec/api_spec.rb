@@ -4,6 +4,8 @@ require 'minitest/autorun'
 require 'minitest/rg'
 require 'rack/test'
 require 'json'
+require 'yaml'
+
 
 require_relative '../app/controllers/app'
 require_relative '../app/models/item'
@@ -12,20 +14,14 @@ def app
   LostNFound::Api
 end
 
+DATA = YAML.safe_load_file('app/db/seeds/item_seeds.yml')
+
 describe 'Test LostNFound Web API' do
   include Rack::Test::Methods
 
   before do
     Dir.glob("#{LostNFound::Item::STORE_DIR}/*.json").each { |f| File.delete(f) }
     LostNFound::Item.setup
-
-    @sample_data = {
-      'category' => LostNFound::ItemCategory::LOST,
-      'item_name' => 'Keys',
-      'description' => 'Bunch of house keys',
-      'location' => 'Library',
-      'datetime' => '2025-04-09T12:00:00'
-    }
   end
 
   it 'should respond to root route' do
@@ -36,8 +32,8 @@ describe 'Test LostNFound Web API' do
 
   describe 'Handle item routes' do
     it 'HAPPY: should return list of all item UUIDs' do
-      LostNFound::Item.new(@sample_data).save
-      LostNFound::Item.new(@sample_data.merge('item_name' => 'Phone')).save
+      LostNFound::Item.new(DATA[0]).save
+      LostNFound::Item.new(DATA[1]).save
 
       get '/api/v1/item'
       result = JSON.parse(last_response.body)
@@ -47,7 +43,7 @@ describe 'Test LostNFound Web API' do
     end
 
     it 'HAPPY: should return details of a single item' do
-      item = LostNFound::Item.new(@sample_data)
+      item = LostNFound::Item.new(DATA[0])
       item.save
 
       get "/api/v1/item/#{item.uuid}"
@@ -66,7 +62,7 @@ describe 'Test LostNFound Web API' do
 
     it 'HAPPY: should create a new item' do
       header = { 'CONTENT_TYPE' => 'application/json' }
-      post '/api/v1/item', @sample_data.to_json, header
+      post '/api/v1/item', DATA[0].to_json, header
 
       _(last_response.status).must_equal 201
       result = JSON.parse(last_response.body)
