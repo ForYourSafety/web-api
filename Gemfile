@@ -1,17 +1,17 @@
 # frozen_string_literal: true
 
-source "https://rubygems.org"
+source 'https://rubygems.org'
 
 # Web API
-gem 'roda', '~>3.6'
-gem 'puma', '>= 6.4.3'
 gem 'json'
+gem 'puma', '>= 6.4.3'
+gem 'roda', '~>3.6'
 
 # Testing
+gem 'bundler-audit'
 gem 'minitest'
 gem 'minitest-rg'
 gem 'rack-test'
-gem 'bundler-audit'
 
 # Debugging
 gem 'pry'
