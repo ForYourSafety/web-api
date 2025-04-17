@@ -3,15 +3,41 @@
 source 'https://rubygems.org'
 
 # Web API
+gem 'base64'
 gem 'json'
-gem 'puma', '>= 6.4.3'
-gem 'roda', '~>3.6'
+gem 'logger', '~> 1.0'
+gem 'puma', '~>6.0'
+gem 'roda', '~>3.0'
+
+# Configuration
+gem 'figaro', '~>1.2'
+gem 'rake'
+
+# Security
+gem 'rbnacl', '~>7.1'
+
+# Database
+gem 'hirb'
+gem 'sequel', '~>5.55'
+group :development, :test do
+  gem 'sqlite3', '~>1.4'
+end
+
+# Performance
+gem 'rubocop-performance'
 
 # Testing
-gem 'bundler-audit'
-gem 'minitest'
-gem 'minitest-rg'
-gem 'rack-test'
+group :test do
+  gem 'minitest'
+  gem 'minitest-rg'
+  gem 'rack-test'
+end
 
-# Debugging
+# Development
+gem 'bundler-audit'
 gem 'pry'
+gem 'rerun'
+gem 'rubocop'
+gem 'rubocop-minitest'
+gem 'rubocop-rake'
+gem 'rubocop-sequel'
