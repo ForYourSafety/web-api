@@ -31,7 +31,7 @@ task release_check: %i[spec style audit] do
   puts "\nReady for release!"
 end
 
-task :print_env do
+task :print_env do # rubocop:disable Rake/Desc
   puts "Environment: #{ENV['RACK_ENV'] || 'development'}"
 end
 
@@ -40,54 +40,39 @@ task console: :print_env do
   sh 'pry -r ./spec/test_load_all'
 end
 
-def load_minimal_app
-  require_app(nil) # load nothing by default
-  require 'sequel'
-  Sequel.extension :migration
-  @app = LostNFound::Api
-end
-
-def run_migrations
-  puts 'Migrating database to latest'
-  Sequel::Migrator.run(@app.DB, 'db/migrations')
-end
-
-def delete_project_data
-  LostNFound::Project.dataset.destroy
-end
-
-def drop_database_file
-  if @app.environment == :production
-    puts 'Cannot wipe production database!'
-    return
-  end
-
-  db_filename = "db/local/#{LostNFound::Api.environment}.db"
-  FileUtils.rm(db_filename)
-  puts "Deleted #{db_filename}"
-end
-
 namespace :db do
-  task :load do
-    load_minimal_app
+  task :load do # rubocop:disable Rake/Desc
+    require_app(nil) # load nothing by default
+    require 'sequel'
+
+    Sequel.extension :migration
+    @app = LostNFound::Api
   end
 
-  task :load_models do
+  task :load_models do # rubocop:disable Rake/Desc
     require_app('models')
   end
 
   desc 'Run migrations'
   task migrate: %i[load print_env] do
-    run_migrations
+    puts 'Migrating database to latest'
+    Sequel::Migrator.run(@app.DB, 'db/migrations')
   end
 
   desc 'Destroy data in database; maintain tables'
   task delete: :load_models do
-    delete_project_data
+    LostNFound::Delegate.dataset.destroy
   end
 
   desc 'Delete dev or test database file'
   task drop: :load do
-    drop_database_file
+    if @app.environment == :production
+      puts 'Cannot wipe production database!'
+      return
+    end
+
+    db_filename = "db/local/#{LostNFound::Api.environment}.db"
+    FileUtils.rm(db_filename)
+    puts "Deleted #{db_filename}"
   end
 end
