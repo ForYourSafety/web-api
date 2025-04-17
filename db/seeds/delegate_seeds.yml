@@ -1,0 +1,7 @@
+- name: Alice Wu
+  email: alice.wu@example.com
+  phone_number: "+886912345678"
+
+- name: Kevin Chen
+  email: kevin.chen@example.com
+  phone_number: "+886912565898"
