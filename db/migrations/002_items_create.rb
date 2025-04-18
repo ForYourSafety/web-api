@@ -6,7 +6,7 @@ Sequel.migration do
   change do
     create_table(:items) do
       primary_key :id
-      foreign_key :delegate_id, table: :delegates
+      foreign_key :category_id, table: :categories
 
       String :category, null: false
       String :itemname, null: false

@@ -6,7 +6,7 @@ require 'sequel'
 module LostNFound
   # model for lost items
   class Item < Sequel::Model
-    many_to_one :delegate
+    many_to_one :category
 
     plugin :timestamps, update_on_create: true
 
@@ -24,7 +24,7 @@ module LostNFound
             }
           },
           included: {
-            delegate:
+            category:
           }
         }, options
       )

@@ -4,8 +4,8 @@ require 'json'
 require 'sequel'
 
 module LostNFound
-  # models a delegate
-  class Delegate < Sequel::Model
+  # models a category
+  class Category < Sequel::Model
     one_to_many :items
     plugin :association_dependencies, items: :destroy
     plugin :timestamps
@@ -14,12 +14,10 @@ module LostNFound
       JSON(
         {
           data: {
-            type: 'delegate',
+            type: 'category',
             attributes: {
               id:,
-              name:,
-              email:,
-              phone_number:
+              item_type:
             }
           }
         }, options

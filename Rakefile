@@ -61,7 +61,7 @@ namespace :db do
 
   desc 'Destroy data in database; maintain tables'
   task delete: :load_models do
-    LostNFound::Delegate.dataset.destroy
+    LostNFound::Category.dataset.destroy
   end
 
   desc 'Delete dev or test database file'

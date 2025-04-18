@@ -17,33 +17,33 @@ module LostNFound
       end
       @api_root = 'api/v1'
       routing.on @api_root do
-        routing.on 'delegates' do
-          @dele_route = "#{@api_root}/delegates"
+        routing.on 'categories' do
+          @cate_route = "#{@api_root}/categories"
 
-          routing.on String do |dele_id|
+          routing.on String do |cate_id|
             routing.on 'items' do
-              @item_route = "#{@api_root}/delegates/#{dele_id}/items"
-              # GET api/v1/delegates/[dele_id]/items/[item_id]
+              @item_route = "#{@api_root}/categories/#{cate_id}/items"
+              # GET api/v1/categories/[cate_id]/items/[item_id]
               routing.get String do |item_id|
-                item = Item.where(delegate_id: dele_id, id: item_id).first
+                item = Item.where(category_id: cate_id, id: item_id).first
                 item ? item.to_json : raise('item not found')
               rescue StandardError => e
                 routing.halt 404, { message: e.message }.to_json
               end
 
-              # GET api/v1/delegates/[dele_id]/items
+              # GET api/v1/categories/[cate_id]/items
               routing.get do
-                output = { data: Delegate.first(id: dele_id).items }
+                output = { data: Category.first(id: cate_id).items }
                 JSON.pretty_generate(output)
               rescue StandardError
                 routing.halt 404, message: 'Could not find documents'
               end
 
-              # POST api/v1/delegates/[ID]/items
+              # POST api/v1/categories/[ID]/items
               routing.post do
                 new_data = JSON.parse(routing.body.read)
-                dele = Delegate.first(id: dele_id)
-                new_item = dele.add_item(new_data)
+                cate = Category.first(id: cate_id)
+                new_item = cate.add_item(new_data)
 
                 if new_item
                   response.status = 201
@@ -57,32 +57,32 @@ module LostNFound
               end
             end
 
-            # GET api/v1/delegates/[ID]
+            # GET api/v1/categories/[ID]
             routing.get do
-              dele = Delegate.first(id: dele_id)
-              dele ? dele.to_json : raise('Delegate not found')
+              cate = Category.first(id: cate_id)
+              cate ? cate.to_json : raise('Category not found')
             rescue StandardError => e
               routing.halt 404, { message: e.message }.to_json
             end
           end
 
-          # GET api/v1/delegates
+          # GET api/v1/categories
           routing.get do
-            output = { data: Delegate.all }
+            output = { data: Category.all }
             JSON.pretty_generate(output)
           rescue StandardError
-            routing.halt 404, { message: 'Could not find delegates' }.to_json
+            routing.halt 404, { message: 'Could not find categories' }.to_json
           end
 
-          # POST api/v1/delegates
+          # POST api/v1/categories
           routing.post do
             new_data = JSON.parse(routing.body.read)
-            new_dele = Delegate.new(new_data)
-            raise('Could not save delegate') unless new_dele.save_changes
+            new_cate = Category.new(new_data)
+            raise('Could not save category') unless new_cate.save_changes
 
             response.status = 201
-            response['Location'] = "#{@dele_route}/#{new_dele.id}"
-            { message: 'Delegate saved', data: new_dele }.to_json
+            response['Location'] = "#{@cate_route}/#{new_cate.id}"
+            { message: 'Category saved', data: new_cate }.to_json
           rescue StandardError => e
             routing.halt 400, { message: e.message }.to_json
           end
