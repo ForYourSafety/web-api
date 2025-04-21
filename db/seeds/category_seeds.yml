@@ -1,4 +1,6 @@
-- item_type: Keys
+- item_type: Clothing
+  description: Clothing items such as shirts, pants, and jackets.
 
 
 - item_type: 3C Products
+  description: Electronics and gadgets including phones, laptops, and accessories.
