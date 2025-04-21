@@ -30,10 +30,11 @@ describe 'Test Category Handling' do
 
     result = JSON.parse last_response.body
     _(result['data']['attributes']['id']).must_equal id
-    _(result['data']['attributes']['name']).must_equal existing_cate['name']
+    _(result['data']['attributes']['item_type']).must_equal existing_cate['item_type']
+    _(result['data']['attributes']['description']).must_equal existing_cate['description']
   end
 
-  it 'SAD: should return error if unknown project requested' do
+  it 'SAD: should return error if unknown category requested' do
     get '/api/v1/categories/foobar'
 
     _(last_response.status).must_equal 404
@@ -51,8 +52,7 @@ describe 'Test Category Handling' do
     cate = LostNFound::Category.first
 
     _(created['id']).must_equal cate.id
-    _(created['name']).must_equal existing_cate['name']
-    _(created['email']).must_equal existing_cate['email']
-    _(created['phone_number']).must_equal existing_cate['phone_number']
+    _(created['item_type']).must_equal existing_cate['item_type']
+    _(created['description']).must_equal existing_cate['description']
   end
 end
