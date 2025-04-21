@@ -8,6 +8,7 @@ Sequel.migration do
       primary_key :id
 
       String :item_type, unique: true, null: false
+      String :description
 
       DateTime :created_at
       DateTime :updated_at
