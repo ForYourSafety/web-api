@@ -8,18 +8,18 @@ describe 'Test Item Handling' do
   before do
     wipe_database
 
-    DATA[:delegates].each do |delegate_data|
-      LostNFound::Delegate.create(delegate_data)
+    DATA[:categories].each do |category_data|
+      LostNFound::Category.create(category_data)
     end
   end
 
   it 'HAPPY: should be able to get list of all items' do
-    dele = LostNFound::Delegate.first
+    cate = LostNFound::Category.first
     DATA[:items].each do |item|
-      dele.add_item(item)
+      cate.add_item(item)
     end
 
-    get "api/v1/delegates/#{dele.id}/items"
+    get "api/v1/categories/#{cate.id}/items"
     _(last_response.status).must_equal 200
 
     result = JSON.parse last_response.body
@@ -28,11 +28,11 @@ describe 'Test Item Handling' do
 
   it 'HAPPY: should be able to get details of a single document' do
     item_data = DATA[:items][1]
-    dele = LostNFound::Delegate.first
+    cate = LostNFound::Category.first
 
-    item = dele.add_item(item_data).save # rubocop:disable Sequel/SaveChanges
+    item = cate.add_item(item_data).save # rubocop:disable Sequel/SaveChanges
 
-    get "/api/v1/delegates/#{dele.id}/items/#{item.id}"
+    get "/api/v1/categories/#{cate.id}/items/#{item.id}"
     _(last_response.status).must_equal 200
 
     result = JSON.parse last_response.body
@@ -41,17 +41,17 @@ describe 'Test Item Handling' do
   end
 
   it 'SAD: should return error if unknown document requested' do
-    dele = LostNFound::Delegate.first
-    get "/api/v1/delegates/#{dele.id}/items/foobar"
+    cate = LostNFound::Category.first
+    get "/api/v1/categories/#{cate.id}/items/foobar"
 
     _(last_response.status).must_equal 404
   end
 
   it 'HAPPY: should be able to create new documents' do
-    dele = LostNFound::Delegate.first
+    cate = LostNFound::Category.first
     item_data = DATA[:items][1]
     req_header = { 'CONTENT_TYPE' => 'application/json' }
-    post "api/v1/delegates/#{dele.id}/items",
+    post "api/v1/categories/#{cate.id}/items",
          item_data.to_json, req_header
     _(last_response.status).must_equal 201
     _(last_response.headers['Location'].size).must_be :>, 0
