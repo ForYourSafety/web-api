@@ -8,7 +8,7 @@ Sequel.migration do
       primary_key :id
       foreign_key :category_id, table: :categories
 
-      String :category, null: false
+      String :type, null: false
       String :itemname, null: false
       String :description
       String :location
