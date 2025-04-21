@@ -17,7 +17,8 @@ module LostNFound
             type: 'category',
             attributes: {
               id:,
-              item_type:
+              item_type:,
+              description:
             }
           }
         }, options
