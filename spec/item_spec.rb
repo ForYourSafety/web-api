@@ -26,10 +26,9 @@ describe 'Test Item Handling' do
     _(result['data'].count).must_equal 2
   end
 
-  it 'HAPPY: should be able to get details of a single document' do
+  it 'HAPPY: should be able to get details of a single item' do
     item_data = DATA[:items][1]
     cate = LostNFound::Category.first
-
     item = cate.add_item(item_data).save # rubocop:disable Sequel/SaveChanges
 
     get "/api/v1/categories/#{cate.id}/items/#{item.id}"
