@@ -34,7 +34,7 @@ module LostNFound
 
               # GET /api/v1/items/:item_id/contacts
               routing.get do
-                item = Items.first(id: item_id)
+                item = Item.first(id: item_id)
                 raise 'Item not found' unless item
 
                 output = { data: item.contacts }
@@ -46,11 +46,11 @@ module LostNFound
               # POST /api/v1/items/:item_id/contacts
               routing.post do
                 new_data = JSON.parse(routing.body.read)
-                item = Items.first(id: item_id)
+                item = Item.first(id: item_id)
                 raise 'Item not found' unless item
 
                 new_contact = item.new_contact(new_data)
-                raise 'Could not save contact' unless new_contact.save_changes
+                raise 'Could not save contact' unless new_contact
 
                 response.status = 201
                 response['Location'] = "#{@contacts_route}/#{new_contact.id}"
@@ -62,7 +62,7 @@ module LostNFound
 
             # GET /api/v1/items/:item_id
             routing.get do
-              item = Items.first(id: item_id)
+              item = Item.first(id: item_id)
               item ? item.to_json : raise('Item not found')
             rescue StandardError
               routing.halt 500, { message: 'Server error' }.to_json
@@ -71,16 +71,14 @@ module LostNFound
 
           # GET /api/v1/items
           routing.get do
-            output = { data: Items.all }
+            output = { data: Item.all }
             JSON.pretty_generate(output)
-          rescue StandardError
-            routing.halt 500, { message: 'Server error' }.to_json
           end
 
           # POST /api/v1/items
           routing.post do
             new_data = JSON.parse(routing.body.read)
-            new_item = Items.new(new_data)
+            new_item = Item.new(new_data)
             raise 'Could not save item' unless new_item.save_changes
 
             response.status = 201
