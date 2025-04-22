@@ -30,7 +30,7 @@ module LostNFound
             }
           },
           included: {
-            category:
+            contacts:
           }
         }, options
       )
