@@ -5,13 +5,13 @@ require 'sequel'
 Sequel.migration do
   change do
     create_table(:items) do
-      primary_key :id
-      foreign_key :category_id, table: :categories
+      uuid :id, primary_key: true
 
-      String :type, null: false
-      String :itemname, null: false
+      Integer :type, null: false
+      String :name, null: false
       String :description
       String :location
+      Integer :resolved, default: 0
 
       DateTime :created_at
       DateTime :updated_at
