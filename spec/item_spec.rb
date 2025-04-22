@@ -11,20 +11,20 @@ describe 'Test Item Handling' do
 
   it 'HAPPY: should be able to get list of all items' do
     DATA[:items].each do |item|
-      item['type'] = item['type'].to_sym # Convert string to enum
-      LostNFound::Item.create(item).save_changes
+      new_item = item.clone
+      new_item['type'] = new_item['type'].to_sym # Convert string to enum
+      LostNFound::Item.create(new_item).save_changes
     end
 
     get 'api/v1/items'
     _(last_response.status).must_equal 200
-    puts last_response.body
 
     result = JSON.parse last_response.body
     _(result['data'].count).must_equal 2
   end
 
   it 'HAPPY: should be able to get details of a single item' do
-    item_data = DATA[:items][1]
+    item_data = DATA[:items][1].clone
     item_data['type'] = item_data['type'].to_sym # Convert string to enum
     LostNFound::Item.create(item_data).save_changes
     item = LostNFound::Item.first
@@ -45,18 +45,19 @@ describe 'Test Item Handling' do
   end
 
   it 'HAPPY: should be able to create new documents' do
-    cate = LostNFound::Category.first
     item_data = DATA[:items][1]
-    req_header = { 'CONTENT_TYPE' => 'application/json' }
-    post "api/v1/categories/#{cate.id}/items",
+    puts "item_data: #{item_data}"
+    req_header = { 'Content-Type' => 'application/json' }
+    post 'api/v1/items',
          item_data.to_json, req_header
+
     _(last_response.status).must_equal 201
     _(last_response.headers['Location'].size).must_be :>, 0
     created = JSON.parse(last_response.body)['data']['data']['attributes']
     item = LostNFound::Item.first
 
     _(created['id']).must_equal item.id
-    _(created['itemname']).must_equal item_data['itemname']
-    _(created['description']).must_equal item_data['description']
+    _(created['name']).must_equal item_data['name']
+    _(created['type']).must_equal item_data['type']
   end
 end
