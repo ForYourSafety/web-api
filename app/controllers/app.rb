@@ -78,6 +78,7 @@ module LostNFound
           # POST /api/v1/items
           routing.post do
             new_data = JSON.parse(routing.body.read)
+            new_data['type'] = new_data['type'].to_sym # Convert string to enum
             new_item = Item.new(new_data)
             raise 'Could not save item' unless new_item.save_changes
 
