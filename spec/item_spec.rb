@@ -7,20 +7,17 @@ describe 'Test Item Handling' do
 
   before do
     wipe_database
-
-    DATA[:categories].each do |category_data|
-      LostNFound::Category.create(category_data)
-    end
   end
 
   it 'HAPPY: should be able to get list of all items' do
-    cate = LostNFound::Category.first
     DATA[:items].each do |item|
-      cate.add_item(item)
+      item['type'] = item['type'].to_sym # Convert string to enum
+      LostNFound::Item.create(item).save_changes
     end
 
-    get "api/v1/categories/#{cate.id}/items"
+    get 'api/v1/items'
     _(last_response.status).must_equal 200
+    puts last_response.body
 
     result = JSON.parse last_response.body
     _(result['data'].count).must_equal 2
