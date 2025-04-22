@@ -20,13 +20,16 @@ module LostNFound
       JSON(
         {
           data: {
-            type: 'category',
+            type: 'contact',
             attributes: {
               id:,
               item_id:,
               contact_type:,
               value:
             }
+          },
+          included: {
+            item:
           }
         }, options
       )
