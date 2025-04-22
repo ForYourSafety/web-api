@@ -63,7 +63,7 @@ module LostNFound
             # GET /api/v1/items/:item_id
             routing.get do
               item = Item.first(id: item_id)
-              item ? item.to_json : raise('Item not found')
+              item ? item.to_json : routing.halt(404, { message: 'Item not found' }.to_json)
             rescue StandardError
               routing.halt 500, { message: 'Server error' }.to_json
             end
