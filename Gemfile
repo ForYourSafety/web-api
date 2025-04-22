@@ -41,3 +41,5 @@ gem 'rubocop'
 gem 'rubocop-minitest'
 gem 'rubocop-rake'
 gem 'rubocop-sequel'
+
+gem "sequel_enum", "~> 0.2.0"
