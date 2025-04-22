@@ -19,6 +19,7 @@ gem 'rbnacl', '~>7.1'
 # Database
 gem 'hirb'
 gem 'sequel', '~>5.55'
+gem 'sequel_enum', '~> 0.2.0'
 group :development, :test do
   gem 'sqlite3', '~>1.4'
 end
@@ -41,5 +42,6 @@ gem 'rubocop'
 gem 'rubocop-minitest'
 gem 'rubocop-rake'
 gem 'rubocop-sequel'
-
-gem "sequel_enum", "~> 0.2.0"
+gem 'sorbet', group: :development
+gem 'sorbet-runtime'
+gem 'tapioca', require: false, group: %i[development test]
