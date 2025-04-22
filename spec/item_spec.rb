@@ -38,13 +38,13 @@ describe 'Test Item Handling' do
     _(result['data']['attributes']['type'].to_sym).must_equal item_data['type']
   end
 
-  it 'SAD: should return error if unknown document requested' do
+  it 'SAD: should return error if unknown item requested' do
     get '/api/v1/items/foobar'
 
     _(last_response.status).must_equal 404
   end
 
-  it 'HAPPY: should be able to create new documents' do
+  it 'HAPPY: should be able to create new item' do
     item_data = DATA[:items][1]
     puts "item_data: #{item_data}"
     req_header = { 'Content-Type' => 'application/json' }
