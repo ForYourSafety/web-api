@@ -4,9 +4,15 @@ require 'json'
 require 'sequel'
 
 module LostNFound
-  # models a category
-  class Category < Sequel::Model
-    one_to_many :items
+  # models a contact
+  class Contact < Sequel::Model
+    many_to_one :item
+    plugin :uuid, field: :id
+
+    plugin :enum
+    enum :contact_type, :other, :email, :phone, :address, :facebook, :twitter, :instagram, :whatsapp, :telegram, :line,
+         :signal, :wechat, :discord
+
     plugin :association_dependencies, items: :destroy
     plugin :timestamps
 
@@ -17,8 +23,9 @@ module LostNFound
             type: 'category',
             attributes: {
               id:,
-              item_type:,
-              description:
+              item_id:,
+              contact_type:,
+              value:
             }
           }
         }, options
