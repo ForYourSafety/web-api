@@ -14,3 +14,4 @@ end
 
 DATA = {} # rubocop:disable Style/MutableConstant
 DATA[:items] = YAML.safe_load_file('db/seeds/item_seeds.yml')
+DATA[:contacts] = YAML.safe_load_file('db/seeds/contact_seeds.yml')
