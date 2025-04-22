@@ -11,7 +11,7 @@ module LostNFound
     plugin :uuid, field: :id
 
     plugin :enum
-    enum :type, :lost, :found
+    enum :type, lost: 0, found: 1
 
     plugin :association_dependencies, contacts: :destroy
     plugin :timestamps, update_on_create: true
