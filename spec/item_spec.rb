@@ -39,8 +39,7 @@ describe 'Test Item Handling' do
   end
 
   it 'SAD: should return error if unknown document requested' do
-    cate = LostNFound::Category.first
-    get "/api/v1/categories/#{cate.id}/items/foobar"
+    get '/api/v1/items/foobar'
 
     _(last_response.status).must_equal 404
   end
