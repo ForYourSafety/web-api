@@ -12,7 +12,7 @@ end
 
 desc 'Test all the specs'
 Rake::TestTask.new(:spec) do |t|
-  t.pattern = 'spec/*_spec.rb'
+  t.pattern = 'spec/**/*_spec.rb'
   t.warning = false
 end
 
@@ -42,7 +42,7 @@ end
 
 namespace :db do
   task :load do # rubocop:disable Rake/Desc
-    require_app(nil) # load nothing by default
+    require_app(['config'])
     require 'sequel'
 
     Sequel.extension :migration
@@ -50,7 +50,7 @@ namespace :db do
   end
 
   task :load_models do # rubocop:disable Rake/Desc
-    require_app('models')
+    require_app(%w[config models])
   end
 
   desc 'Run migrations'
@@ -74,5 +74,13 @@ namespace :db do
     db_filename = "db/local/#{LostNFound::Api.environment}.db"
     FileUtils.rm(db_filename)
     puts "Deleted #{db_filename}"
+  end
+end
+
+namespace :newkey do
+  desc 'Create sample cryptographic key for database'
+  task :db do
+    require_app('lib', config: false)
+    puts "DB_KEY: #{SecureDB.generate_key}"
   end
 end

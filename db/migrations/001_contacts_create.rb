@@ -4,14 +4,11 @@ require 'sequel'
 
 Sequel.migration do
   change do
-    create_table(:items) do
+    create_table(:contacts) do
       uuid :id, primary_key: true
-
-      Integer :type, null: false
-      String :name, null: false
-      String :description
-      String :location
-      Integer :resolved, default: 0
+      foreign_key :item_id, table: :items, null: false, on_delete: :cascade
+      Integer :contact_type, null: false
+      String :value_secure, null: false
 
       DateTime :created_at
       DateTime :updated_at

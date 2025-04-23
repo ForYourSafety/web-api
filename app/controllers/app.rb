@@ -17,74 +17,77 @@ module LostNFound
       end
       @api_root = 'api/v1'
       routing.on @api_root do
-        routing.on 'categories' do
-          @cate_route = "#{@api_root}/categories"
+        routing.on 'items' do
+          @items_route = "#{@api_root}/items"
 
-          routing.on String do |cate_id|
-            routing.on 'items' do
-              @item_route = "#{@api_root}/categories/#{cate_id}/items"
-              # GET api/v1/categories/[cate_id]/items/[item_id]
-              routing.get String do |item_id|
-                item = Item.where(category_id: cate_id, id: item_id).first
-                item ? item.to_json : raise('item not found')
-              rescue StandardError => e
-                routing.halt 404, { message: e.message }.to_json
+          routing.on String do |item_id|
+            routing.on 'contacts' do
+              @contacts_route = "#{@api_root}/items/#{item_id}/contacts"
+
+              # GET /api/v1/items/:item_id/contacts/:contact_id
+              routing.get String do |contact_id|
+                contact = Contact.where(item_id: item_id, id: contact_id).first
+                contact ? contact.to_json : routing.halt(404, { message: 'Contact not found' }.to_json)
+              rescue StandardError
+                routing.halt 500, { message: 'Server error' }.to_json
               end
 
-              # GET api/v1/categories/[cate_id]/items
+              # GET /api/v1/items/:item_id/contacts
               routing.get do
-                output = { data: Category.first(id: cate_id).items }
+                item = Item.first(id: item_id)
+                routing.halt 404, { message: 'Item not found' }.to_json unless item
+
+                output = { data: item.contacts }
                 JSON.pretty_generate(output)
               rescue StandardError
-                routing.halt 404, message: 'Could not find documents'
+                routing.halt 500, { message: 'Server error' }.to_json
               end
 
-              # POST api/v1/categories/[ID]/items
+              # POST /api/v1/items/:item_id/contacts
               routing.post do
                 new_data = JSON.parse(routing.body.read)
-                cate = Category.first(id: cate_id)
-                new_item = cate.add_item(new_data)
+                item = Item.first(id: item_id)
+                routing.halt 404, { message: 'Item not found' }.to_json unless item
 
-                if new_item
-                  response.status = 201
-                  response['Location'] = "#{@item_route}/#{new_item.id}"
-                  { message: 'Item saved', data: new_item }.to_json
-                else
-                  routing.halt 400, 'Could not save item'
-                end
+                new_data['contact_type'] = new_data['contact_type'].to_sym # Convert string to enum
+                new_contact = item.add_contact(new_data)
+                routing.halt 400, { message: 'Could not save contact' }.to_json unless new_contact
+
+                response.status = 201
+                response['Location'] = "#{@contacts_route}/#{new_contact.id}"
+                { message: 'Contact saved', data: new_contact }.to_json
               rescue StandardError
-                routing.halt 500, { message: 'Database error' }.to_json
+                routing.halt 500, { message: 'Server error' }.to_json
               end
             end
 
-            # GET api/v1/categories/[ID]
+            # GET /api/v1/items/:item_id
             routing.get do
-              cate = Category.first(id: cate_id)
-              cate ? cate.to_json : raise('Category not found')
-            rescue StandardError => e
-              routing.halt 404, { message: e.message }.to_json
+              item = Item.first(id: item_id)
+              item ? item.to_json : routing.halt(404, { message: 'Item not found' }.to_json)
+            rescue StandardError
+              routing.halt 500, { message: 'Server error' }.to_json
             end
           end
 
-          # GET api/v1/categories
+          # GET /api/v1/items
           routing.get do
-            output = { data: Category.all }
+            output = { data: Item.all }
             JSON.pretty_generate(output)
-          rescue StandardError
-            routing.halt 404, { message: 'Could not find categories' }.to_json
           end
 
-          # POST api/v1/categories
+          # POST /api/v1/items
           routing.post do
             new_data = JSON.parse(routing.body.read)
-            new_cate = Category.new(new_data)
-            raise('Could not save category') unless new_cate.save_changes
+            new_data['type'] = new_data['type'].to_sym # Convert string to enum
+            new_item = Item.new(new_data)
+            routing.halt 400, { message: 'Could not save item' }.to_json unless new_item.save_changes
 
             response.status = 201
-            response['Location'] = "#{@cate_route}/#{new_cate.id}"
-            { message: 'Category saved', data: new_cate }.to_json
-          rescue StandardError => e
-            routing.halt 400, { message: e.message }.to_json
+            response['Location'] = "#{@items_route}/#{new_item.id}"
+            { message: 'Item saved', data: new_item }.to_json
+          rescue StandardError
+            routing.halt 500, { message: 'Server error' }.to_json
           end
         end
       end

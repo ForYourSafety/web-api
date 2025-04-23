@@ -6,8 +6,14 @@ require 'sequel'
 module LostNFound
   # model for lost items
   class Item < Sequel::Model
-    many_to_one :category
+    one_to_many :contacts
 
+    plugin :uuid, field: :id
+
+    plugin :enum
+    enum :type, lost: 0, found: 1
+
+    plugin :association_dependencies, contacts: :destroy
     plugin :timestamps, update_on_create: true
 
     def to_json(options = {}) # rubocop:disable Metrics/MethodLength
@@ -18,13 +24,14 @@ module LostNFound
             attributes: {
               id:,
               type:,
-              itemname:,
+              name:,
               description:,
-              location:
+              location:,
+              resolved:
             }
           },
           included: {
-            category:
+            contacts:
           }
         }, options
       )
