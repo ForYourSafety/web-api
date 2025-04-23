@@ -6,7 +6,7 @@ Sequel.migration do
   change do
     create_table(:contacts) do
       uuid :id, primary_key: true
-      foreign_key :item_id, table: :items, null: false
+      foreign_key :item_id, table: :items, null: false, on_delete: :cascade
       Integer :contact_type, null: false
       String :value, null: false
 
