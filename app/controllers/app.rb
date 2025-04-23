@@ -27,7 +27,7 @@ module LostNFound
               # GET /api/v1/items/:item_id/contacts/:contact_id
               routing.get String do |contact_id|
                 contact = Contact.where(item_id: item_id, id: contact_id).first
-                contact ? contact.to_json : raise('Contact not found')
+                contact ? contact.to_json : routing.halt(404, { message: 'Contact not found' }.to_json)
               rescue StandardError
                 routing.halt 500, { message: 'Server error' }.to_json
               end
@@ -35,7 +35,7 @@ module LostNFound
               # GET /api/v1/items/:item_id/contacts
               routing.get do
                 item = Item.first(id: item_id)
-                raise 'Item not found' unless item
+                routing.halt 404, { message: 'Item not found' }.to_json unless item
 
                 output = { data: item.contacts }
                 JSON.pretty_generate(output)
@@ -47,10 +47,11 @@ module LostNFound
               routing.post do
                 new_data = JSON.parse(routing.body.read)
                 item = Item.first(id: item_id)
-                raise 'Item not found' unless item
+                routing.halt 404, { message: 'Item not found' }.to_json unless item
 
-                new_contact = item.new_contact(new_data)
-                raise 'Could not save contact' unless new_contact
+                new_data['contact_type'] = new_data['contact_type'].to_sym # Convert string to enum
+                new_contact = item.add_contact(new_data)
+                routing.halt 400, { message: 'Could not save contact' }.to_json unless new_contact
 
                 response.status = 201
                 response['Location'] = "#{@contacts_route}/#{new_contact.id}"
@@ -80,7 +81,7 @@ module LostNFound
             new_data = JSON.parse(routing.body.read)
             new_data['type'] = new_data['type'].to_sym # Convert string to enum
             new_item = Item.new(new_data)
-            raise 'Could not save item' unless new_item.save_changes
+            routing.halt 400, { message: 'Could not save item' }.to_json unless new_item.save_changes
 
             response.status = 201
             response['Location'] = "#{@items_route}/#{new_item.id}"
