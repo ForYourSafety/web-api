@@ -16,6 +16,14 @@ module LostNFound
     plugin :association_dependencies, item: :destroy
     plugin :timestamps
 
+    def value
+      SecureDB.decrypt(value_secure)
+    end
+
+    def value=(value)
+      self.value_secure = SecureDB.encrypt(value)
+    end
+
     def to_json(options = {}) # rubocop:disable Metrics/MethodLength
       JSON(
         {
