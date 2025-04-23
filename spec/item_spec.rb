@@ -46,7 +46,6 @@ describe 'Test Item Handling' do
 
   it 'HAPPY: should be able to create new item' do
     item_data = DATA[:items][1]
-    puts "item_data: #{item_data}"
     req_header = { 'Content-Type' => 'application/json' }
     post 'api/v1/items',
          item_data.to_json, req_header
