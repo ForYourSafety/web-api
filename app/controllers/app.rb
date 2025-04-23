@@ -56,6 +56,9 @@ module LostNFound
                 response.status = 201
                 response['Location'] = "#{@contacts_route}/#{new_contact.id}"
                 { message: 'Contact saved', data: new_contact }.to_json
+              rescue Sequel::MassAssignmentRestriction
+                Api.logger.warn "MASS-ASSIGNMENT: #{new_data.keys}"
+                routing.halt 400, { message: 'Illegal Attributes' }.to_json
               rescue StandardError
                 routing.halt 500, { message: 'Server error' }.to_json
               end
@@ -86,6 +89,9 @@ module LostNFound
             response.status = 201
             response['Location'] = "#{@items_route}/#{new_item.id}"
             { message: 'Item saved', data: new_item }.to_json
+          rescue Sequel::MassAssignmentRestriction
+            Api.logger.warn "MASS-ASSIGNMENT: #{new_data.keys}"
+            routing.halt 400, { message: 'Illegal Attributes' }.to_json
           rescue StandardError
             routing.halt 500, { message: 'Server error' }.to_json
           end

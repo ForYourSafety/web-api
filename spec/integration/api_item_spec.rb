@@ -44,19 +44,45 @@ describe 'Test Item Handling' do
     _(last_response.status).must_equal 404
   end
 
-  it 'HAPPY: should be able to create new item' do
-    item_data = DATA[:items][1]
-    req_header = { 'Content-Type' => 'application/json' }
-    post 'api/v1/items',
-         item_data.to_json, req_header
+  it 'SECURITY: should prevent basic SQL injection targeting IDs' do
+    LostNFound::Item.create(name: 'New Item', type: :lost)
+    LostNFound::Item.create(name: 'Newer Item', type: :found)
+    get 'api/v1/items/2%20or%20id%3E0'
 
-    _(last_response.status).must_equal 201
-    _(last_response.headers['Location'].size).must_be :>, 0
-    created = JSON.parse(last_response.body)['data']['data']['attributes']
-    item = LostNFound::Item.first
+    # deliberately not reporting error -- don't give attacker information
+    _(last_response.status).must_equal 404
+    _(last_response.body['data']).must_be_nil
+  end
 
-    _(created['id']).must_equal item.id
-    _(created['name']).must_equal item_data['name']
-    _(created['type']).must_equal item_data['type']
+  describe 'Creating New Items' do
+    before do
+      @req_header = { 'CONTENT_TYPE' => 'application/json' }
+      @item_data = DATA[:items][1]
+    end
+
+    it 'HAPPY: should be able to create new item' do
+      item_data = DATA[:items][1]
+      req_header = { 'Content-Type' => 'application/json' }
+      post 'api/v1/items',
+           item_data.to_json, req_header
+
+      _(last_response.status).must_equal 201
+      _(last_response.headers['Location'].size).must_be :>, 0
+      created = JSON.parse(last_response.body)['data']['data']['attributes']
+      item = LostNFound::Item.first
+
+      _(created['id']).must_equal item.id
+      _(created['name']).must_equal item_data['name']
+      _(created['type']).must_equal item_data['type']
+    end
+
+    it 'SECURITY: should not create item with mass assignment' do
+      bad_data = @item_data.clone
+      bad_data['created_at'] = '1900-01-01'
+      post 'api/v1/items', bad_data.to_json, @req_header
+
+      _(last_response.status).must_equal 400
+      _(last_response.headers['Location']).must_be_nil
+    end
   end
 end

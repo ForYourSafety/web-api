@@ -16,6 +16,9 @@ module LostNFound
     plugin :association_dependencies, contacts: :destroy
     plugin :timestamps, update_on_create: true
 
+    plugin :whitelist_security
+    set_allowed_columns :id, :type, :name, :description, :location, :resolved, :type
+
     def to_json(options = {}) # rubocop:disable Metrics/MethodLength
       JSON(
         {
