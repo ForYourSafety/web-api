@@ -27,9 +27,6 @@ module LostNFound
               contact_type:,
               value:
             }
-          },
-          included: {
-            item:
           }
         }, options
       )
