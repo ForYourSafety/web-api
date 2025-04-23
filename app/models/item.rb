@@ -26,6 +26,7 @@ module LostNFound
               type:,
               name:,
               description:,
+              location:,
               resolved:
             }
           },
