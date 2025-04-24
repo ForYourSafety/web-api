@@ -54,18 +54,27 @@ describe 'Test Contact Handling' do
   end
 
   it 'SECURITY: should prevent basic SQL injection targeting IDs' do
-    item_data_new = DATA[:items][0].clone
-    item_data_new['type'] = item_data_new['type'].to_sym # Convert string to enum
-    item = LostNFound::Item.create(item_data_new)
+    item_data = DATA[:items][0].clone
+    item_data['type'] = item_data['type'].to_sym
+    item = LostNFound::Item.create(item_data)
 
-    contact_data_new = DATA[:contacts][0].clone
-    contact_data_new['contact_type'] = contact_data_new['contact_type'].to_sym
-    item.add_contact(contact_data_new)
-    get "api/v1/items/#{item.id}/contacts/2%20or%20id%3E0"
+    # Create two real contacts to make the test meaningful
+    contact_data1 = DATA[:contacts][0].clone
+    contact_data1['contact_type'] = contact_data1['contact_type'].to_sym
+    item.add_contact(contact_data1)
 
-    # deliberately not reporting error -- don't give attacker information
+    contact_data2 = DATA[:contacts][1].clone
+    contact_data2['contact_type'] = contact_data2['contact_type'].to_sym
+    item.add_contact(contact_data2)
+
+    # Attempt SQL injection through contact_id
+    injection_id = CGI.escape('2 or id>0') # encoded "2 or id>0"
+    get "api/v1/items/#{item.id}/contacts/#{injection_id}"
+
     _(last_response.status).must_equal 404
-    _(last_response.body['data']).must_be_nil
+
+    parsed = JSON.parse(last_response.body)
+    _(parsed['data']).must_be_nil
   end
 
   describe 'Creating Contacts' do
