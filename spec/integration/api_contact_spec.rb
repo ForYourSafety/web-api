@@ -53,6 +53,21 @@ describe 'Test Contact Handling' do
     _(last_response.status).must_equal 404
   end
 
+  it 'SECURITY: should prevent basic SQL injection targeting IDs' do
+    item_data_new = DATA[:items][0].clone
+    item_data_new['type'] = item_data_new['type'].to_sym # Convert string to enum
+    item = LostNFound::Item.create(item_data_new)
+
+    contact_data_new = DATA[:contacts][0].clone
+    contact_data_new['contact_type'] = contact_data_new['contact_type'].to_sym
+    item.add_contact(contact_data_new)
+    get "api/v1/items/#{item.id}/contacts/2%20or%20id%3E0"
+
+    # deliberately not reporting error -- don't give attacker information
+    _(last_response.status).must_equal 404
+    _(last_response.body['data']).must_be_nil
+  end
+
   describe 'Creating Contacts' do
     before do
       @item = LostNFound::Item.first

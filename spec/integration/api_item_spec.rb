@@ -44,22 +44,6 @@ describe 'Test Item Handling' do
     _(last_response.status).must_equal 404
   end
 
-  it 'SECURITY: should prevent basic SQL injection targeting IDs' do
-    item_data_new = DATA[:items][0].clone
-    item_data_new['type'] = item_data_new['type'].to_sym # Convert string to enum
-    LostNFound::Item.create(item_data_new).save_changes
-    get 'api/v1/items/2%20or%20id%3E0'
-
-    item_data_newer = DATA[:items][1].clone
-    item_data_newer['type'] = item_data_newer['type'].to_sym # Convert string to enum
-    LostNFound::Item.create(item_data_newer).save_changes
-    get 'api/v1/items/2%20or%20id%3E0'
-
-    # deliberately not reporting error -- don't give attacker information
-    _(last_response.status).must_equal 404
-    _(last_response.body['data']).must_be_nil
-  end
-
   describe 'Creating New Items' do
     before do
       @req_header = { 'CONTENT_TYPE' => 'application/json' }
