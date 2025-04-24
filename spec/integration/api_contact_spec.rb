@@ -56,16 +56,13 @@ describe 'Test Contact Handling' do
   describe 'Creating Contacts' do
     before do
       @item = LostNFound::Item.first
-      @con_data = DATA[:contacts][1]
+      @contact_data = DATA[:contacts][1]
       @req_header = { 'CONTENT_TYPE' => 'application/json' }
     end
 
     it 'HAPPY: should be able to create new contact' do
-      item = LostNFound::Item.first
-      contact_data = DATA[:contacts][0]
-      req_header = { 'Content-Type' => 'application/json' }
-      post "api/v1/items/#{item.id}/contacts",
-           contact_data.to_json, req_header
+      post "api/v1/items/#{@item.id}/contacts",
+           @contact_data.to_json, @req_header
 
       _(last_response.status).must_equal 201
       _(last_response.headers['Location'].size).must_be :>, 0
@@ -73,12 +70,12 @@ describe 'Test Contact Handling' do
       contact = LostNFound::Contact.first
 
       _(created['id']).must_equal contact.id
-      _(created['value']).must_equal contact_data['value']
-      _(created['contact_type']).must_equal contact_data['contact_type']
+      _(created['value']).must_equal @contact_data['value']
+      _(created['contact_type']).must_equal @contact_data['contact_type']
     end
 
     it 'SECURITY: should not create contacts with mass assignment' do
-      bad_data = @con_data.clone
+      bad_data = @contact_data.clone
       bad_data['created_at'] = '1900-01-01'
       post "api/v1/items/#{@item.id}/contacts",
            bad_data.to_json, @req_header

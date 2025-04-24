@@ -2,10 +2,10 @@
   name: Keys
   description: Bunch of house keys
   location: Library
-  resolved: false
+  #resolved: false
 
 - type: found
   name: Phone
   description: iPhone 13 in black case
   location: Cafe
-  resolved: true # Note that this should be blacklisted
+  #resolved: true # Note that this should be blacklisted
