@@ -45,8 +45,14 @@ describe 'Test Item Handling' do
   end
 
   it 'SECURITY: should prevent basic SQL injection targeting IDs' do
-    @item_data = DATA[:items][1]
-    @item_data = DATA[:items][2]
+    item_data_new = DATA[:items][0].clone
+    item_data_new['type'] = item_data_new['type'].to_sym # Convert string to enum
+    LostNFound::Item.create(item_data_new).save_changes
+    get 'api/v1/items/2%20or%20id%3E0'
+
+    item_data_newer = DATA[:items][1].clone
+    item_data_newer['type'] = item_data_newer['type'].to_sym # Convert string to enum
+    LostNFound::Item.create(item_data_newer).save_changes
     get 'api/v1/items/2%20or%20id%3E0'
 
     # deliberately not reporting error -- don't give attacker information
