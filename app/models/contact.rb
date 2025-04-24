@@ -15,6 +15,8 @@ module LostNFound
 
     plugin :association_dependencies, item: :destroy
     plugin :timestamps
+    plugin :whitelist_security
+    set_allowed_columns :item_id, :contact_type, :value
 
     def value
       SecureDB.decrypt(value_secure)

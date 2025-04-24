@@ -53,20 +53,50 @@ describe 'Test Contact Handling' do
     _(last_response.status).must_equal 404
   end
 
-  it 'HAPPY: should be able to create new contact' do
-    item = LostNFound::Item.first
-    contact_data = DATA[:contacts][0]
-    req_header = { 'Content-Type' => 'application/json' }
-    post "api/v1/items/#{item.id}/contacts",
-         contact_data.to_json, req_header
+  it 'SECURITY: should prevent basic SQL injection targeting IDs' do
+    item_data_new = DATA[:items][0].clone
+    item_data_new['type'] = item_data_new['type'].to_sym # Convert string to enum
+    item = LostNFound::Item.create(item_data_new)
 
-    _(last_response.status).must_equal 201
-    _(last_response.headers['Location'].size).must_be :>, 0
-    created = JSON.parse(last_response.body)['data']['data']['attributes']
-    contact = LostNFound::Contact.first
+    contact_data_new = DATA[:contacts][0].clone
+    contact_data_new['contact_type'] = contact_data_new['contact_type'].to_sym
+    item.add_contact(contact_data_new)
+    get "api/v1/items/#{item.id}/contacts/2%20or%20id%3E0"
 
-    _(created['id']).must_equal contact.id
-    _(created['value']).must_equal contact_data['value']
-    _(created['contact_type']).must_equal contact_data['contact_type']
+    # deliberately not reporting error -- don't give attacker information
+    _(last_response.status).must_equal 404
+    _(last_response.body['data']).must_be_nil
+  end
+
+  describe 'Creating Contacts' do
+    before do
+      @item = LostNFound::Item.first
+      @contact_data = DATA[:contacts][1]
+      @req_header = { 'CONTENT_TYPE' => 'application/json' }
+    end
+
+    it 'HAPPY: should be able to create new contact' do
+      post "api/v1/items/#{@item.id}/contacts",
+           @contact_data.to_json, @req_header
+
+      _(last_response.status).must_equal 201
+      _(last_response.headers['Location'].size).must_be :>, 0
+      created = JSON.parse(last_response.body)['data']['data']['attributes']
+      contact = LostNFound::Contact.first
+
+      _(created['id']).must_equal contact.id
+      _(created['value']).must_equal @contact_data['value']
+      _(created['contact_type']).must_equal @contact_data['contact_type']
+    end
+
+    it 'SECURITY: should not create contacts with mass assignment' do
+      bad_data = @contact_data.clone
+      bad_data['created_at'] = '1900-01-01'
+      post "api/v1/items/#{@item.id}/contacts",
+           bad_data.to_json, @req_header
+
+      _(last_response.status).must_equal 400
+      _(last_response.headers['Location']).must_be_nil
+    end
   end
 end
