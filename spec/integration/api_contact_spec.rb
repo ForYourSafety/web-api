@@ -72,9 +72,7 @@ describe 'Test Contact Handling' do
     get "api/v1/items/#{item.id}/contacts/#{injection_id}"
 
     _(last_response.status).must_equal 404
-
-    parsed = JSON.parse(last_response.body)
-    _(parsed['data']).must_be_nil
+    _(last_response.body['data']).must_be_nil
   end
 
   describe 'Creating Contacts' do
