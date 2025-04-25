@@ -54,18 +54,14 @@ describe 'Test Contact Handling' do
   end
 
   it 'SECURITY: should prevent basic SQL injection targeting IDs' do
-    item_data = DATA[:items][0].clone
-    item_data['type'] = item_data['type'].to_sym
-    item = LostNFound::Item.create(item_data)
+    item = LostNFound::Item.first
 
-    # Create two real contacts to make the test meaningful
-    contact_data1 = DATA[:contacts][0].clone
-    contact_data1['contact_type'] = contact_data1['contact_type'].to_sym
-    item.add_contact(contact_data1)
-
-    contact_data2 = DATA[:contacts][1].clone
-    contact_data2['contact_type'] = contact_data2['contact_type'].to_sym
-    item.add_contact(contact_data2)
+    # Add contacts to the item
+    DATA[:contacts].each do |contact|
+      new_contact = contact.clone
+      new_contact['contact_type'] = new_contact['contact_type'].to_sym # Convert string to enum
+      item.add_contact(new_contact)
+    end
 
     # Attempt SQL injection through contact_id
     injection_id = CGI.escape('2 or id>0') # encoded "2 or id>0"
