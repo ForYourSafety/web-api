@@ -28,8 +28,9 @@ module LostNFound
               routing.get String do |contact_id|
                 contact = Contact.where(item_id: item_id, id: contact_id).first
                 contact ? contact.to_json : routing.halt(404, { message: 'Contact not found' }.to_json)
-              rescue StandardError
-                routing.halt 500, { message: 'Server error' }.to_json
+              rescue StandardError => e
+                Api.logger.error "UNKOWN ERROR: #{e.message}"
+                routing.halt 500, { message: 'Unknown server error' }.to_json
               end
 
               # GET /api/v1/items/:item_id/contacts
@@ -39,8 +40,9 @@ module LostNFound
 
                 output = { data: item.contacts }
                 JSON.pretty_generate(output)
-              rescue StandardError
-                routing.halt 500, { message: 'Server error' }.to_json
+              rescue StandardError => e
+                Api.logger.error "UNKOWN ERROR: #{e.message}"
+                routing.halt 500, { message: 'Unknown server error' }.to_json
               end
 
               # POST /api/v1/items/:item_id/contacts
@@ -59,8 +61,9 @@ module LostNFound
               rescue Sequel::MassAssignmentRestriction
                 Api.logger.warn "MASS-ASSIGNMENT: #{new_data.keys}"
                 routing.halt 400, { message: 'Illegal Attributes' }.to_json
-              rescue StandardError
-                routing.halt 500, { message: 'Server error' }.to_json
+              rescue StandardError => e
+                Api.logger.error "UNKOWN ERROR: #{e.message}"
+                routing.halt 500, { message: 'Unknown server error' }.to_json
               end
             end
 
@@ -68,8 +71,9 @@ module LostNFound
             routing.get do
               item = Item.first(id: item_id)
               item ? item.to_json : routing.halt(404, { message: 'Item not found' }.to_json)
-            rescue StandardError
-              routing.halt 500, { message: 'Server error' }.to_json
+            rescue StandardError => e
+              Api.logger.error "UNKOWN ERROR: #{e.message}"
+              routing.halt 500, { message: 'Unknown server error' }.to_json
             end
           end
 
@@ -92,8 +96,9 @@ module LostNFound
           rescue Sequel::MassAssignmentRestriction
             Api.logger.warn "MASS-ASSIGNMENT: #{new_data.keys}"
             routing.halt 400, { message: 'Illegal Attributes' }.to_json
-          rescue StandardError
-            routing.halt 500, { message: 'Server error' }.to_json
+          rescue StandardError => e
+            Api.logger.error "UNKOWN ERROR: #{e.message}"
+            routing.halt 500, { message: 'Unknown server error' }.to_json
           end
         end
       end
