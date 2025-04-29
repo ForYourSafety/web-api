@@ -17,11 +17,11 @@ gem 'rake'
 gem 'rbnacl', '~>7.1'
 
 # Database
-gem 'hirb'
-gem 'sequel', '~>5.55'
-gem 'sequel_enum', '~> 0.2.0'
+gem 'hirb', '~>0.7'
+gem 'sequel', '~>5.67'
 group :development, :test do
-  gem 'sqlite3', '~>1.4'
+  gem 'sequel-seed'
+  gem 'sqlite3', '~>1.6'
 end
 
 # Performance

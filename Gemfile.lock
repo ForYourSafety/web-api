@@ -93,8 +93,8 @@ GEM
     ruby-progressbar (1.13.0)
     sequel (5.91.0)
       bigdecimal
-    sequel_enum (0.2.0)
-      sequel
+    sequel-seed (1.1.2)
+      sequel (>= 4.49.0)
     sorbet (0.5.12028)
       sorbet-static (= 0.5.12028)
     sorbet-runtime (0.5.12028)
@@ -138,7 +138,7 @@ DEPENDENCIES
   base64
   bundler-audit
   figaro (~> 1.2)
-  hirb
+  hirb (~> 0.7)
   json
   logger (~> 1.0)
   minitest
@@ -155,11 +155,11 @@ DEPENDENCIES
   rubocop-performance
   rubocop-rake
   rubocop-sequel
-  sequel (~> 5.55)
-  sequel_enum (~> 0.2.0)
+  sequel (~> 5.67)
+  sequel-seed
   sorbet
   sorbet-runtime
-  sqlite3 (~> 1.4)
+  sqlite3 (~> 1.6)
   tapioca
 
 BUNDLED WITH
