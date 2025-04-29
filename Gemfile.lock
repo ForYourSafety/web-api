@@ -95,6 +95,8 @@ GEM
       bigdecimal
     sequel-seed (1.1.2)
       sequel (>= 4.49.0)
+    sequel_enum (0.2.0)
+      sequel
     sorbet (0.5.12028)
       sorbet-static (= 0.5.12028)
     sorbet-runtime (0.5.12028)
@@ -157,6 +159,7 @@ DEPENDENCIES
   rubocop-sequel
   sequel (~> 5.67)
   sequel-seed
+  sequel_enum (~> 0.2.0)
   sorbet
   sorbet-runtime
   sqlite3 (~> 1.6)
