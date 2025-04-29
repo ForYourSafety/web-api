@@ -7,7 +7,7 @@ require_relative 'password'
 module LostNFound
   # models a registered account
   class Account < Sequel::Model
-    one_to_many :items
+    one_to_many :items, key: :created_by
 
     plugin :association_dependencies, items: :destroy
 

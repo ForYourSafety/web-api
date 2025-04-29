@@ -7,6 +7,7 @@ module LostNFound
   # model for lost items
   class Item < Sequel::Model
     one_to_many :contacts
+    many_to_one :creator, class: 'LostNFound::Account', key: :created_by
 
     plugin :uuid, field: :id
 
@@ -17,7 +18,7 @@ module LostNFound
     plugin :timestamps, update_on_create: true
 
     plugin :whitelist_security
-    set_allowed_columns :id, :type, :name, :description, :location
+    set_allowed_columns :id, :type, :name, :description, :location, :created_by
 
     def to_json(options = {}) # rubocop:disable Metrics/MethodLength
       JSON(
@@ -30,6 +31,7 @@ module LostNFound
               name:,
               description:,
               location:,
+              created_by:,
               resolved:
             }
           },
