@@ -1,10 +1,14 @@
 - contact_type: telegram
   value: "@foobar"
+
 - contact_type: email
   value: contact@example.com
+
 - contact_type: phone
   value: "+1234567890"
+
 - contact_type: address
   value: 新竹市光復路二段101號
+  
 - contact_type: other
   value: "QQ: 123456789"
