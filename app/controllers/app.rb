@@ -17,6 +17,38 @@ module LostNFound
       end
       @api_root = 'api/v1'
       routing.on @api_root do
+        routing.on 'accounts' do
+          @account_route = "#{@api_root}/accounts"
+
+          routing.on String do |username|
+            # GET api/v1/accounts/[username]
+            routing.get do
+              account = Account.first(username:)
+              account ? account.to_json : routing.halt(404, { message: 'Account not found' }.to_json)
+            rescue StandardError => e
+              Api.logger.error "UNKOWN ERROR: #{e.message}"
+              routing.halt 404, { message: 'Unknown server error' }.to_json
+            end
+          end
+
+          # POST api/v1/accounts
+          routing.post do
+            new_data = JSON.parse(routing.body.read)
+            new_account = Account.new(new_data)
+            routing.halt 400, { message: 'Could not save account' }.to_json unless new_account.save_changes
+
+            response.status = 201
+            response['Location'] = "#{@account_route}/#{new_account.id}"
+            { message: 'Account created', data: new_account }.to_json
+          rescue Sequel::MassAssignmentRestriction
+            Api.logger.warn "MASS-ASSIGNMENT:: #{new_data.keys}"
+            routing.halt 400, { message: 'Illegal Request' }.to_json
+          rescue StandardError => e
+            Api.logger.error "UNKOWN ERROR: #{e.message}"
+            routing.halt 500, { message: 'Unknown server error' }.to_json
+          end
+        end
+
         routing.on 'items' do
           @items_route = "#{@api_root}/items"
 
