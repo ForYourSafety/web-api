@@ -10,10 +10,21 @@ module LostNFound
 
     plugin :timestamps, update_on_create: true
     plugin :whitelist_security
-    set_allowed_columns :name
+    set_allowed_columns :name, :description
 
-    def to_json(options = {})
-      JSON({ data: { type: 'tag', attributes: { id:, name: } } }, options)
+    def to_json(options = {}) # rubocop:disable Metrics/MethodLength
+      JSON(
+        {
+          data: {
+            type: 'tag',
+            attributes: {
+              id:,
+              name:,
+              description:
+            }
+          }
+        }, options
+      )
     end
   end
 end
