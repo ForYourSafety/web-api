@@ -8,8 +8,6 @@ module LostNFound
   class Tag < Sequel::Model
     many_to_many :items, class: 'LostNFound::Item', join_table: :items_tags
 
-    plugin :uuid, field: :id
-
     plugin :timestamps, update_on_create: true
     plugin :whitelist_security
     set_allowed_columns :name
