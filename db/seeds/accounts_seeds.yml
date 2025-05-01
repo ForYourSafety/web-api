@@ -1,6 +1,8 @@
-- username: Mater Yi
+# TODO: Currently, we does not support spaces or special characters in the username
+# We need to add a validation for this in the future
+- username: MaterYi
   password: PaSSWord
-- username: Sarah Pan
+- username: SarahPan
   password: SomePassWord
-- username: Fifi Ding
+- username: FifiDing
   password: ASETOFPAssworD
