@@ -86,9 +86,15 @@ module LostNFound
           # POST /api/v1/items
           routing.post do
             new_data = JSON.parse(routing.body.read)
-            new_data['type'] = new_data['type'].to_sym # Convert string to enum
-            new_item = Item.new(new_data)
-            routing.halt 400, { message: 'Could not save item' }.to_json unless new_item.save_changes
+            # TODO: temporarily use the first account as the owner
+            # this should be replaced with the actual owner
+            # once the authentication is implemented
+            owner = Account.first
+            new_item = CreateItemForOwner.call(
+              owner_id: owner.id,
+              item_data: new_data
+            )
+            routing.halt 400, { message: 'Could not save item' }.to_json unless new_item
 
             response.status = 201
             response['Location'] = "#{@items_route}/#{new_item.id}"

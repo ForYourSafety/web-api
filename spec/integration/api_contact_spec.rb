@@ -8,19 +8,24 @@ describe 'Test Contact Handling' do
   before do
     wipe_database
 
+    owner = LostNFound::Account.create(DATA[:accounts][0])
+    owner.save_changes
+
     DATA[:items].each do |item|
-      new_item = item.clone
-      new_item['type'] = new_item['type'].to_sym # Convert string to enum
-      LostNFound::Item.create(item).save_changes
+      LostNFound::CreateItemForOwner.call(
+        owner_id: owner.id,
+        item_data: item
+      )
     end
   end
 
   it 'HAPPY: should be able to get list of all contacts' do
     item = LostNFound::Item.first
     DATA[:contacts].each do |contact|
-      new_contact = contact.clone
-      new_contact['contact_type'] = new_contact['contact_type'].to_sym # Convert string to enum
-      item.add_contact(new_contact)
+      LostNFound::CreateContactForItem.call(
+        item_id: item.id,
+        contact_data: contact
+      )
     end
 
     get "api/v1/items/#{item.id}/contacts"
@@ -32,17 +37,18 @@ describe 'Test Contact Handling' do
 
   it 'HAPPY: should be able to get details of a single contact' do
     item = LostNFound::Item.first
-    contact_data = DATA[:contacts][1].clone
-    contact_data['contact_type'] = contact_data['contact_type'].to_sym # Convert string to enum
-    item.add_contact(contact_data)
-    contact = LostNFound::Contact.first
+    contact_data = DATA[:contacts][1]
+    contact = LostNFound::CreateContactForItem.call(
+      item_id: item.id,
+      contact_data: contact_data
+    )
 
     get "/api/v1/items/#{item.id}/contacts/#{contact.id}"
     _(last_response.status).must_equal 200
 
     result = JSON.parse last_response.body
     _(result['data']['attributes']['id']).must_equal contact.id
-    _(result['data']['attributes']['contact_type'].to_sym).must_equal contact_data['contact_type']
+    _(result['data']['attributes']['contact_type']).must_equal contact_data['contact_type']
     _(result['data']['attributes']['value']).must_equal contact_data['value']
   end
 
@@ -58,9 +64,10 @@ describe 'Test Contact Handling' do
 
     # Add contacts to the item
     DATA[:contacts].each do |contact|
-      new_contact = contact.clone
-      new_contact['contact_type'] = new_contact['contact_type'].to_sym # Convert string to enum
-      item.add_contact(new_contact)
+      LostNFound::CreateContactForItem.call(
+        item_id: item.id,
+        contact_data: contact
+      )
     end
 
     # Attempt SQL injection through contact_id
