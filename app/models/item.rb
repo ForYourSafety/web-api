@@ -8,6 +8,7 @@ module LostNFound
   class Item < Sequel::Model
     one_to_many :contacts
     many_to_one :creator, class: 'LostNFound::Account', key: :created_by
+    many_to_many :tags, class: 'LostNFound::Tag', join_table: :items_tags
 
     plugin :uuid, field: :id
 
