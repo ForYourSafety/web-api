@@ -7,30 +7,53 @@ API for LostNFound, a lost and found system.
 All routes return JSON
 
 - GET `/`: Root route shows if Web API is running
-- GET `api/v1/item/`: returns all item UUIDs
-- GET `api/v1/item/[UUID]`: returns details about a single item with given UUID
-- POST `api/v1/item/`: creates a new lost or found item
+- GET `api/v1/items`: returns all items
+- POST `api/v1/items`: creates a new lost or found item
+- GET `api/v1/items/:item_id`: returns details about a single item with given id
+- GET `api/v1/items/:item_id/contacts`: returns all contacts for a given item id
+- GET `api/v1/items/:item_id/contacts/:contact_id`: returns details about a single contact with given id for a given item id
+- POST `api/v1/items/:item_id/contacts`: creates a new contact for a given item id
 
 ## Install
 
-Install this API by cloning the *relevant branch* and installing required gems from `Gemfile.lock`:
+Install this API by cloning the *relevant branch* and use bundler to install specified gems from `Gemfile.lock`:
 
 ```shell
 bundle install
 ```
 
-## Test
-
-Run the test script:
+Setup development database once:
 
 ```shell
-ruby spec/api_spec.rb
+rake db:migrate
+```
+
+## Test
+
+Setup test database once:
+
+```shell
+RACK_ENV=test rake db:migrate
+```
+
+Run the test specification script in `Rakefile`:
+
+```shell
+rake spec
 ```
 
 ## Execute
 
-Run this API using:
+Launch the API using:
 
 ```shell
-rackup
+puma
+```
+
+## Release check
+
+Before submitting pull requests, please check if specs, style, and dependency audits pass (will need to be online to update dependency database):
+
+```shell
+rake release_check
 ```
