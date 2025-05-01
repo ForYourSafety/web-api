@@ -8,10 +8,14 @@ describe 'Test Contact Handling' do
   before do
     wipe_database
 
+    @owner = LostNFound::Account.create(DATA[:accounts][0])
+    @owner.save_changes
+
     DATA[:items].each do |item|
-      new_item = item.clone
-      new_item['type'] = new_item['type'].to_sym # Convert string to enum
-      LostNFound::Item.create(item).save_changes
+      LostNFound::CreateItemForOwner.call(
+        owner_id: @owner.id,
+        item_data: item
+      )
     end
   end
 
