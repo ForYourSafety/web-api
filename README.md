@@ -7,6 +7,8 @@ API for LostNFound, a lost and found system.
 All routes return JSON
 
 - GET `/`: Root route shows if Web API is running
+- GET `api/v1/accounts/:username`: returns details about a single account with given username
+- POST `api/v1/accounts`: creates a new account
 - GET `api/v1/items`: returns all items
 - POST `api/v1/items`: creates a new lost or found item
 - GET `api/v1/items/:item_id`: returns details about a single item with given id
