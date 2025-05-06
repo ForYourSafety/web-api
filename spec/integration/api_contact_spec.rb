@@ -42,7 +42,7 @@ describe 'Test Contact Handling' do
       item_id: item.id,
       contact_data: contact_data
     )
-    # binding.irb
+
     get "/api/v1/items/#{item.id}/contacts/#{contact.id}"
     _(last_response.status).must_equal 200
 
