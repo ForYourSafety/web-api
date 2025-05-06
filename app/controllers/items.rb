@@ -36,13 +36,10 @@ module LostNFound
 
           # POST /api/v1/items/:item_id/contacts
           routing.post do
-            new_data = HttpRequest.new(routing).body_data # created_at affecting the contact
-            # new_data = JSON.parse(routing.body.read)
+            new_data = JSON.parse(routing.body.read)
             item = Item.first(id: item_id)
 
             routing.halt 404, { message: 'Item not found' }.to_json unless item
-            # new_data['contact_type'] = new_data['contact_type'].to_sym # Convert string to enum
-            # new_contact = item.add_contact(new_data)
 
             new_contact = CreateContactForItem.call(
               item_id: item.id, contact_data: new_data
@@ -73,7 +70,7 @@ module LostNFound
 
       # GET /api/v1/items
       routing.get do
-        output = { data: Item.all}
+        output = { data: Item.all }
         JSON.pretty_generate(output)
       end
 
