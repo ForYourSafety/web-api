@@ -42,13 +42,13 @@ describe 'Test Contact Handling' do
       item_id: item.id,
       contact_data: contact_data
     )
-
+    # binding.irb
     get "/api/v1/items/#{item.id}/contacts/#{contact.id}"
     _(last_response.status).must_equal 200
 
     result = JSON.parse last_response.body
     _(result['data']['attributes']['id']).must_equal contact.id
-    _(result['data']['attributes']['contact_type']).must_equal contact_data['contact_type']
+    _(result['data']['attributes']['contact_type']).must_equal contact_data['contact_type'].to_s
     _(result['data']['attributes']['value']).must_equal contact_data['value']
   end
 
@@ -86,8 +86,7 @@ describe 'Test Contact Handling' do
     end
 
     it 'HAPPY: should be able to create new contact' do
-      post "api/v1/items/#{@item.id}/contacts",
-           @contact_data.to_json, @req_header
+      post "api/v1/items/#{@item.id}/contacts", @contact_data.to_json, @req_header
 
       _(last_response.status).must_equal 201
       _(last_response.headers['Location'].size).must_be :>, 0
@@ -101,10 +100,9 @@ describe 'Test Contact Handling' do
 
     it 'SECURITY: should not create contacts with mass assignment' do
       bad_data = @contact_data.clone
-      bad_data['created_at'] = '1900-01-01'
+      bad_data['created_at'] = '1900-01-02'
       post "api/v1/items/#{@item.id}/contacts",
            bad_data.to_json, @req_header
-
       _(last_response.status).must_equal 400
       _(last_response.headers['Location']).must_be_nil
     end
