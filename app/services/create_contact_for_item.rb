@@ -12,9 +12,8 @@ module LostNFound
       item = Item.first(id: item_id)
       raise(ItemNotFoundError) unless item
 
-      new_data = contact_data.transform_keys(&:to_sym)
-      # safely convert contact_type to symbol if it's a string
-      new_data[:contact_type] = new_data[:contact_type].to_sym if new_data[:contact_type].is_a?(String)
+      new_data = contact_data.clone
+      new_data['contact_type'] = new_data['contact_type'].to_sym # Convert string to enum
       item.add_contact(new_data)
     end
   end
