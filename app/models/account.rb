@@ -29,8 +29,9 @@ module LostNFound
       JSON(
         {
           type: 'account',
-          id:,
-          username:
+          attributes: {
+            username:
+          }
         }, options
       )
     end
