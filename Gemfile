@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 source 'https://rubygems.org'
+ruby File.read('.ruby-version').strip
 
 # Web API
 gem 'base64'
@@ -46,3 +47,7 @@ gem 'rubocop-sequel'
 gem 'sorbet', group: :development
 gem 'sorbet-runtime'
 gem 'tapioca', require: false, group: %i[development test]
+
+group :production do
+  gem 'pg'
+end
