@@ -8,6 +8,7 @@ module LostNFound
   # models a registered account
   class Account < Sequel::Model
     one_to_many :items, key: :created_by
+    plugin :uuid, field: :id
 
     plugin :association_dependencies, items: :destroy
 
