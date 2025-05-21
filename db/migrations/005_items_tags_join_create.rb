@@ -7,7 +7,7 @@ Sequel.migration do
     create_table(:items_tags) do
       foreign_key :item_id, :items, type: :uuid, on_delete: :cascade
 
-      foreign_key :tag_id, :tags, type: :uuid, on_delete: :cascade
+      foreign_key :tag_id, :tags, on_delete: :cascade
 
       primary_key %i[item_id tag_id]
 
