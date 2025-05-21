@@ -13,7 +13,7 @@ module LostNFound
     plugin :association_dependencies, items: :destroy
 
     plugin :whitelist_security
-    set_allowed_columns :username, :password
+    set_allowed_columns :username, :password, :email
 
     plugin :timestamps, update_on_create: true
 
