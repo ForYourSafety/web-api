@@ -13,7 +13,6 @@ module LostNFound
     enum :contact_type, other: 0, email: 1, phone: 2, address: 3, facebook: 4, twitter: 5, instagram: 6, whatsapp: 7,
                         telegram: 8, line: 9, signal: 10, wechat: 11, discord: 12
 
-    plugin :association_dependencies, item: :destroy
     plugin :timestamps
     plugin :whitelist_security
     set_allowed_columns :item_id, :contact_type, :value
