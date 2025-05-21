@@ -2,7 +2,10 @@
 # We need to add a validation for this in the future
 - username: MaterYi
   password: PaSSWord
+  email: mater.yi@example.com
 - username: SarahPan
   password: SomePassWord
+  email: sarah.pan@example.com
 - username: FifiDing
   password: ASETOFPAssworD
+  email: fifi.ding@example.com
