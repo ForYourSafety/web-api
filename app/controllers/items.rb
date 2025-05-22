@@ -70,8 +70,11 @@ module LostNFound
 
       # GET /api/v1/items
       routing.get do
-        output = { data: Item.all }
-        JSON.pretty_generate(output)
+        account = Account.first(username: @auth_account['username'])
+        items = account.items
+        JSON.pretty_generate(data: items)
+      rescue StandardError
+        routing.halt 403, { message: 'Could not find any items' }.to_json
       end
 
       # POST /api/v1/items
