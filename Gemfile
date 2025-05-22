@@ -26,6 +26,9 @@ group :development, :test do
   gem 'sqlite3', '~>1.6'
 end
 
+# External Services
+gem 'http'
+
 # Performance
 gem 'rubocop-performance'
 
