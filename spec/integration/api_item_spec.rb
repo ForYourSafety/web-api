@@ -7,75 +7,167 @@ describe 'Test Item Handling' do
 
   before do
     wipe_database
-
-    @owner = LostNFound::Account.create(DATA[:accounts][0])
-    @owner.save_changes
   end
 
-  it 'HAPPY: should be able to get list of all items' do
-    DATA[:items].each do |item|
-      LostNFound::CreateItemForOwner.call(
-        owner_id: @owner.id,
-        item_data: item
-      )
-    end
+  describe 'Getting items' do
+    describe 'Getting list of items' do
+      before do
+        @account_data = DATA[:accounts][0]
+        account = LostNFound::Account.create(@account_data)
+        account.add_item(DATA[:items][0])
+        account.add_item(DATA[:items][1])
+      end
 
-    get 'api/v1/items'
-    _(last_response.status).must_equal 200
+      it 'HAPPY: should get list for authorized account' do
+        auth = LostNFound::AuthenticateAccount.call(
+          username: @account_data['username'],
+          password: @account_data['password']
+        )
 
-    result = JSON.parse last_response.body
-    _(result['data'].count).must_equal 2
-  end
+        header 'AUTHORIZATION', "Bearer #{auth[:attributes][:auth_token]}"
+        get 'api/v1/items'
 
-  it 'HAPPY: should be able to get details of a single item' do
-    item_data = DATA[:items][1]
-    item = LostNFound::CreateItemForOwner.call(
-      owner_id: @owner.id,
-      item_data: item_data
-    )
+        _(last_response.status).must_equal 200
 
-    get "/api/v1/items/#{item.id}"
-    _(last_response.status).must_equal 200
+        result = JSON.parse last_response.body
+        _(result['data'].count).must_equal 2
+      end
 
-    result = JSON.parse last_response.body
-    _(result['data']['attributes']['id']).must_equal item.id
-    _(result['data']['attributes']['name']).must_equal item_data['name']
-    _(result['data']['attributes']['type']).must_equal item_data['type']
-  end
+      it 'BAD: should not process for unauthorized account' do
+        header 'AUTHORIZATION', 'Bearer bad_token'
+        get 'api/v1/items'
+        _(last_response.status).must_equal 403
 
-  it 'SAD: should return error if unknown item requested' do
-    get '/api/v1/items/foobar'
+        result = JSON.parse last_response.body
+        _(result['data']).must_be_nil
+      end
 
-    _(last_response.status).must_equal 404
-  end
+      it 'HAPPY: should be able to get details of a single item' do
+        existing_item = DATA[:items][0]
+        LostNFound::Item.create(existing_item)
+        id = LostNFound::Item.first.id
 
-  describe 'Creating New Items' do
-    before do
-      @req_header = { 'CONTENT_TYPE' => 'application/json' }
-      @item_data = DATA[:items][1]
-    end
+        get "/api/v1/items/#{id}"
+        _(last_response.status).must_equal 200
 
-    it 'HAPPY: should be able to create new item' do
-      post 'api/v1/items',
-           @item_data.to_json, @req_header
+        result = JSON.parse last_response.body
 
-      _(last_response.status).must_equal 201
-      _(last_response.headers['Location'].size).must_be :>, 0
-      created = JSON.parse(last_response.body)['data']['data']['attributes']
-      item = LostNFound::Item.first
+        _(result['data']['attributes']['id']).must_equal id
+        _(result['data']['attributes']['name']).must_equal existing_item['name']
+      end
 
-      _(created['id']).must_equal item.id
-      _(created['name']).must_equal @item_data['name']
-      _(created['type']).must_equal @item_data['type']
-    end
+      it 'SAD: should return error if unknown item requested' do
+        get '/api/v1/items/foobar'
 
-    it 'SECURITY: should not create item with mass assignment' do
-      bad_data = @item_data.clone
-      bad_data['created_at'] = '1900-01-01'
-      post 'api/v1/items', bad_data.to_json, @req_header
+        _(last_response.status).must_equal 404
+      end
 
-      _(last_response.status).must_equal 400
-      _(last_response.headers['Location']).must_be_nil
+      it 'SECURITY: should prevent basic SQL injection targeting IDs' do
+        LostNFound::Item.create(name: 'New Item', type: 'New Type')
+        LostNFound::Item.create(name: 'Newer Item', type: 'Newer Type')
+        get 'api/v1/projects/2%20or%20id%3E0'
+
+        # deliberately not reporting error -- don't give attacker information
+        _(last_response.status).must_equal 404
+        _(last_response.body['data']).must_be_nil
+      end
+
+      describe 'Creating New Items' do
+        before do
+          @req_header = { 'CONTENT_TYPE' => 'application/json' }
+          @item_data = DATA[:items][0]
+        end
+
+        it 'HAPPY: should be able to create new item' do
+          post 'api/v1/items', @item_data.to_json, @req_header
+
+          _(last_response.status).must_equal 201
+          _(last_response.headers['Location'].size).must_be :>, 0
+
+          created = JSON.parse(last_response.body)['data']['data']['attributes']
+          item = LostNFound::Item.first(id: created['id'])
+
+          _(created['id']).must_equal item.id
+          _(created['name']).must_equal @item_data['name']
+          _(created['type']).must_equal @item_data['type']
+        end
+
+        it 'SECURITY: should not create item with mass assignment' do
+          bad_data = @item_data.clone
+          bad_data['created_at'] = '1900-01-01'
+          post 'api/v1/items', bad_data.to_json, @req_header
+
+          _(last_response.status).must_equal 400
+          _(last_response.headers['Location']).must_be_nil
+        end
+      end
     end
   end
 end
+
+  # it 'HAPPY: should be able to get list of all items' do
+  #   DATA[:items].each do |item|
+  #     LostNFound::CreateItemForOwner.call(
+  #       owner_id: @owner.id,
+  #       item_data: item
+  #     )
+  #   end
+
+  #   get 'api/v1/items'
+  #   _(last_response.status).must_equal 200
+
+  #   result = JSON.parse last_response.body
+  #   _(result['data'].count).must_equal 2
+  # end
+
+  # it 'HAPPY: should be able to get details of a single item' do
+  #   item_data = DATA[:items][1]
+  #   item = LostNFound::CreateItemForOwner.call(
+  #     owner_id: @owner.id,
+  #     item_data: item_data
+  #   )
+
+  #   get "/api/v1/items/#{item.id}"
+  #   _(last_response.status).must_equal 200
+
+  #   result = JSON.parse last_response.body
+  #   _(result['data']['attributes']['id']).must_equal item.id
+  #   _(result['data']['attributes']['name']).must_equal item_data['name']
+  #   _(result['data']['attributes']['type']).must_equal item_data['type']
+  # end
+
+  # it 'SAD: should return error if unknown item requested' do
+  #   get '/api/v1/items/foobar'
+
+  #   _(last_response.status).must_equal 404
+  # end
+
+  # describe 'Creating New Items' do
+  #   before do
+  #     @req_header = { 'CONTENT_TYPE' => 'application/json' }
+  #     @item_data = DATA[:items][1]
+  #   end
+
+  #   it 'HAPPY: should be able to create new item' do
+  #     post 'api/v1/items',
+  #          @item_data.to_json, @req_header
+
+  #     _(last_response.status).must_equal 201
+  #     _(last_response.headers['Location'].size).must_be :>, 0
+  #     created = JSON.parse(last_response.body)['data']['data']['attributes']
+  #     item = LostNFound::Item.first
+
+  #     _(created['id']).must_equal item.id
+  #     _(created['name']).must_equal @item_data['name']
+  #     _(created['type']).must_equal @item_data['type']
+  #   end
+
+  #   it 'SECURITY: should not create item with mass assignment' do
+  #     bad_data = @item_data.clone
+  #     bad_data['created_at'] = '1900-01-01'
+  #     post 'api/v1/items', bad_data.to_json, @req_header
+
+  #     _(last_response.status).must_equal 400
+  #     _(last_response.headers['Location']).must_be_nil
+  #   end
+  # end
