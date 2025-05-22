@@ -4,7 +4,7 @@ require 'roda'
 require 'figaro'
 require 'logger'
 require 'sequel'
-require './app/lib/secure_db'
+require_app('lib')
 
 module LostNFound
   # Configuration for the API
@@ -30,6 +30,7 @@ module LostNFound
 
       # Load crypto keys
       SecureDB.setup(ENV.delete('DB_KEY'))
+      AuthToken.setup(ENV.fetch('MSG_KEY'))
 
       # Custom events logging
       LOGGER = Logger.new($stderr)
