@@ -7,7 +7,7 @@ Sequel.migration do
     create_table(:items) do
       uuid :id, primary_key: true
 
-      foreign_key :created_by, :accounts, type: :uuid, null: false
+      foreign_key :created_by, :accounts, type: :uuid # allow column to be null
 
       Integer :type, null: false
       String :name, null: false
