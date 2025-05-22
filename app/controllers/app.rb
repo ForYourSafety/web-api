@@ -12,9 +12,16 @@ module LostNFound
 
     route do |routing|
       response['Content-Type'] = 'application/json'
+      request = HttpRequest.new(routing)
 
-      HttpRequest.new(routing).secure? ||
+      request.secure? ||
         routing.halt(403, { message: 'TLS/SSL Required' }.to_json)
+
+      begin
+        @auth_account = request.authenticated_account
+      rescue AuthToken::InvalidTokenError
+        routing.halt 403, { message: 'Invalid auth token' }.to_json
+      end
 
       routing.root do
         { message: 'LostNFound API up at /api/v1' }.to_json
