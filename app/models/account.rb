@@ -31,7 +31,8 @@ module LostNFound
         {
           type: 'account',
           attributes: {
-            username:
+            username:,
+            email:
           }
         }, options
       )
